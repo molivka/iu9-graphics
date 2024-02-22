@@ -3,9 +3,9 @@ from OpenGL.GL import *
 
 delta = 0.05
 angle = 0.0
-posx = -0.5
-posy = -0.5
-size = 0.0
+posx = -0.2
+posy = -0.2
+koef = 1.5
 
 def display(window):
     global angle
@@ -17,16 +17,25 @@ def display(window):
     glBegin(GL_POLYGON)
 
     glColor3f(1.0, 0.0, 0.0)
-    glVertex2f(posx + 0 + size, posy + 0 + size)
+    glVertex2f(posx + 0*koef, posy + 0*koef)
 
     glColor3f(0.0, 1.0, 0.0)
-    glVertex2f(posx + 1 + size, posy + 0 - size)
+    glVertex2f(posx + 0.2*koef, posy + 0.2*koef)
+
+    glColor3f(0.0, 0.0, 0.1)
+    glVertex2f(posx + 0.4*koef, posy + 0.2*koef)
+
+    glColor3f(1.0, 0.0, 0.0)
+    glVertex2f(posx + 0.6*koef, posy + 0*koef)
+
+    glColor3f(0.0, 1.0, 0.0)
+    glVertex2f(posx + 0.4*koef, posy - 0.2*koef)
 
     glColor3f(0.0, 0.0, 1.0)
-    glVertex2f(posx + 1 - size, posy + 1 - size)
+    glVertex2f(posx + 0.2*koef, posy - 0.2*koef)
 
-    glColor3f(1.0, 1.0, 1.0)
-    glVertex2f(posx + 0 - size, posy + 1 + size)
+    glColor3f(0.5, 0.5, 0.5)
+    glVertex2f(posx + 0*koef, posy + 0*koef)
 
     glEnd()
     glPopMatrix()
@@ -37,34 +46,23 @@ def display(window):
 def key_callback(window, key, scancode, action, mods):
     global delta
     global angle
-    global size
     if action == glfw.PRESS:
         if key == glfw.KEY_RIGHT:
-            delta = -0.05
+            delta = -0.5
         if key == glfw.KEY_LEFT:
-            delta = 0.05
+            delta = 0.5
         if key == glfw.KEY_ENTER:
-            size = 0
-
-
-def scroll_callback(window, xoffset, yoffset):
-    global size
-    if yoffset > 0:
-        size -= xoffset / 10
-    else:
-        size += xoffset / 10
-
+            delta = 0
 
 def main():
     if not glfw.init():
         return
-    window = glfw.create_window(640, 640, "Laba1", None, None)
+    window = glfw.create_window(640, 640, "laba1", None, None)
     if not window:
         glfw.terminate()
         return
     glfw.make_context_current(window)
     glfw.set_key_callback(window, key_callback)
-    glfw.set_scroll_callback(window, scroll_callback)
     while not glfw.window_should_close(window):
         display(window)
     glfw.destroy_window(window)
