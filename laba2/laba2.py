@@ -8,38 +8,38 @@ fill = False
 
 def cube(sz):
     glBegin(GL_QUADS)
-    #передняя
-    glColor3f(1.0, 0.0, 0.0)
+    #левая
+    glColor3f(0.1, 0.0, 0.7)
     glVertex3f(-sz, -sz, -sz)
     glVertex3f(-sz, sz, -sz)
     glVertex3f(-sz, sz, sz)
     glVertex3f(-sz, -sz, sz)
-    #задняя
-    glColor3f(0.0, 1.0, 0.0)
+    #правая
+    glColor3f(0.4, 0.9, 0.0)
     glVertex3f(sz, -sz, -sz)
     glVertex3f(sz, -sz, sz)
     glVertex3f(sz, sz, sz)
     glVertex3f(sz, sz, -sz)
     #нижняя
-    glColor3f(0.0, 0.0, 1.0)
+    glColor3f(0.0, 1.0, 1.0)
     glVertex3f(-sz, -sz, -sz)
     glVertex3f(-sz, -sz, sz)
     glVertex3f(sz, -sz, sz)
     glVertex3f(sz, -sz, -sz)
     #верхняя
-    glColor3f(0.5, 0.5, 0.5)
+    glColor3f(0.0, 0.5, 0.8)
     glVertex3f(-sz, sz, -sz)
     glVertex3f(-sz, sz, sz)
     glVertex3f(sz, sz, sz)
     glVertex3f(sz, sz, -sz)
-    #левая
-    glColor3f(0.8, 1.0, 0.7)
+    #передняя
+    glColor3f(0.5, 0.0, 0.8)
     glVertex3f(-sz, -sz, -sz)
     glVertex3f(sz, -sz, -sz)
     glVertex3f(sz, sz, -sz)
     glVertex3f(-sz, sz, -sz)
-    #правая
-    glColor3f(0.7, 0.0, 0.5)
+    #задняя
+    glColor3f(1.0, 1.0, 1.0)
     glVertex3f(-sz, -sz, sz)
     glVertex3f(sz, -sz, sz)
     glVertex3f(sz, sz, sz)
@@ -61,23 +61,27 @@ def display(window):
          0, 0, 0, 1] #с какого ракурса видим объект 
     glMultMatrixf(T)
 
-    glMatrixMode(GL_MODELVIEW) #матрица едставления модели
+    glMatrixMode(GL_MODELVIEW) #матрица представления модели
     glLoadIdentity()
-    Y = [cos(alpha), 0, -sin(alpha), 0,
+    Z = [cos(beta), 0, -sin(beta), 0,
          0, 1, 0, 0,
-         sin(alpha), 0, cos(alpha), 0,
-         0, 0, 0, 1] #расположение куба
+         sin(beta), 0, cos(beta), 0,
+         0, 0, 0, 1] #вращение вокруг OZ
+    Y = [1, 0, 0, 0,
+         0, cos(alpha), -sin(alpha), 0,
+         0, sin(alpha), cos(alpha), 0,
+         0, 0, 0, 1] #вращение вокруг OY
+    glMultMatrixf(Z)
     glMultMatrixf(Y)
-    cube(0.3)
+    cube(0.3) #основной куб
 
-    glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
-    T2 =[1, 0, 0, 0,
-         0, 1, 0, 0,
-         0, 0, 1, 0,
-         0.7, 0.8, 0, 1] #координаты маленького кубика
+    T2 = [1, 0, 0, 0,
+          0, 1, 0, 0,
+          0, 0, 1, 0,
+          0.7, 0.8, 0, 1] #координаты маленького кубика
     glMultMatrixf(T2)
-    cube(0.1)
+    cube(0.1) #маленький кубик
     glfw.swap_buffers(window)
     glfw.poll_events()
 
@@ -96,9 +100,9 @@ def key_callback(window, key, scancode, action, mods):
         elif key == glfw.KEY_F:
             global fill
             if fill :
-                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL) #твердотельное 
             else:
-                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE) #каркасное 
             fill = not fill
 
 def main():
