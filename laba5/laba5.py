@@ -6,9 +6,10 @@ window_size = (800, 800)
 background_color = 255
 color = 0
 pixels = [0] * window_size[0] * window_size[1]
-points = []
-edges = []
-cnt = 0
+points, points_2 = [], []
+edges, edges_2 = [], []
+cnt, cnt_2 = 0, 0
+otsek = 0
 
 def add_point(x, y):
     global cnt
@@ -24,6 +25,21 @@ def add_point(x, y):
         if cnt > 2:
             bresenham(points[edges[0][0]], points[edges[0][1]], 0) #удаляем последнее ребро
             edges[0] = (0, cnt - 1) #соединяем первую и последнюю точки
+
+def add_point_otsek(x, y):
+    global cnt_2
+    #если выходим за границы или пиксель уже покрашен
+    if x * window_size[0] + y >= len(pixels) or pixels[x * window_size[0] + y] != 0:
+        return
+    points_2.append((x, y))
+    cnt_2 += 1
+    if cnt_2 > 1:
+        if cnt_2 == 3:
+            edges_2.append((0, 1)) #исключительный случай
+        edges_2.append((cnt_2 - 2, cnt_2 - 1))
+        if cnt_2 > 2:
+            bresenham(points_2[edges_2[0][0]], points_2[edges_2[0][1]], 0) #удаляем последнее ребро
+            edges_2[0] = (0, cnt_2 - 1) #соединяем первую и последнюю точки
 
 def bresenham(p1, p2, color): #алгоритм брезенхема без лишних слов
     x1, y1 = p1
@@ -58,6 +74,10 @@ def draw(): #рисуем все рёбра
     for edge in edges:
         bresenham(points[edge[0]], points[edge[1]], 255)
 
+def draw_otsek(): #рисуем все рёбра
+    for edge in edges_2:
+        bresenham(points_2[edge[0]], points_2[edge[1]], 255)
+
 def display(window):
     global pixel_sz, view_sz
     glClearColor(0, 0, 0, 1)
@@ -68,28 +88,38 @@ def display(window):
     glfw.poll_events()
 
 def key_callback(window, key, scancode, action, mods):
-    global color, cnt, background_color, points, pixels, edges
+    global color, cnt, cnt_2, background_color, points, points_2, pixels, edges, edges_2, otsek
     if action == glfw.PRESS:
-        if key == glfw.KEY_S:
+        if key == glfw.KEY_O:
+            if len(edges_2) > 0:
+                draw_otsek()
+        elif key == glfw.KEY_F:
             if len(edges) > 0:
                 draw()
         elif key == glfw.KEY_C:
             pixels = [0] * window_size[0] * window_size[1]
-            points = []
-            edges = []
-            cnt = 0 
+            points, points_2 = [], []
+            edges, edges_2 = [], []
+            cnt, cnt_2 = 0, 0 
+            otsek = 0
+        elif key == glfw.KEY_V:
+            otsek = 1 - otsek
 
 def mouse_button(window, button, action, mods):
     y, x = glfw.get_cursor_pos(window)
     x, y = round(x), round(y)
     if action == glfw.PRESS:
         if button == glfw.MOUSE_BUTTON_LEFT:
-            add_point(x, y)
+            if otsek:
+                add_point_otsek(x, y)
+            else:
+                add_point(x, y)
+            
 
 def main():
     if not glfw.init():
         return
-    window = glfw.create_window(window_size[0], window_size[1], "laba4", None, None)
+    window = glfw.create_window(window_size[0], window_size[1], "laba5", None, None)
     if not window:
         glfw.terminate()
         return
