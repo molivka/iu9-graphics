@@ -1,4 +1,5 @@
 import glfw
+import numpy as np
 from OpenGL.GL import *
 from math import ceil
 
@@ -11,10 +12,60 @@ edges, edges_2 = [], []
 cnt, cnt_2 = 0, 0
 otsek = 0
 
+def is_inside(p1, p2, p):
+    is_in = (p2[0] - p1[0]) * (p[1] - p1[1]) - (p2[1] - p1[1]) * (p[0] - p1[0])
+    if is_in <= 0:
+        return True
+    else:
+        return False
+
+def intersect(p1, p2, p3, p4):
+    if p2[0] - p1[0] == 0:
+        x = p1[0]
+        m2 = (p4[1] - p3[1]) / (p4[0] - p3[0])
+        b2 = p3[1] - m2 * p3[0]
+        y = m2 * x + b2
+    elif p4[0] - p3[0] == 0:
+        x = p3[0]
+        m1 = (p2[1] - p1[1]) / (p2[0] - p1[0])
+        b1 = p1[1] - m1 * p1[0]
+        y = m1 * x + b1
+    else:
+        m1 = (p2[1] - p1[1]) / (p2[0] - p1[0])
+        b1 = p1[1] - m1 * p1[0]
+        m2 = (p4[1] - p3[1]) / (p4[0] - p3[0])
+        b2 = p3[1] - m2 * p3[0]
+        x = (b2 - b1) / (m1 - m2)
+        y = m1 * x + b1
+    intersection = (x, y)
+    return intersection
+
+def cut(poly, otsek_poly):
+    res = poly.copy()
+    for i in range(len(otsek_poly)):
+        cur = res.copy()
+        res = []
+        otsek_start = otsek_poly[i - 1]
+        otsek_end = otsek_poly[i]
+        for j in range(len(cur)):
+            poly_start = cur[j - 1]
+            poly_end = cur[j]  
+            if is_inside(otsek_start, otsek_end, poly_end):
+                if not is_inside(otsek_start, otsek_end, poly_start):
+                    intersection = intersect(poly_start, poly_end, otsek_start, otsek_end)
+                    res.append(intersection)
+                res.append(tuple(poly_end))
+            elif is_inside(otsek_start, otsek_end, poly_start):
+                intersection = intersect(poly_start, poly_end, otsek_start, otsek_end)
+                res.append(intersection)
+    return res
+
 def add_point(x, y):
     global cnt
     #если выходим за границы или пиксель уже покрашен
-    if x * window_size[0] + y >= len(pixels) or pixels[x * window_size[0] + y] != 0:
+    #print("we are in add_point")
+    if x * window_size[0] + y >= len(pixels):
+        print("oops")
         return
     points.append((x, y))
     cnt += 1
@@ -23,7 +74,7 @@ def add_point(x, y):
             edges.append((0, 1)) #исключительный случай
         edges.append((cnt - 2, cnt - 1))
         if cnt > 2:
-            bresenham(points[edges[0][0]], points[edges[0][1]], 0) #удаляем последнее ребро
+            #bresenham(points[edges[0][0]], points[edges[0][1]], 0) #удаляем последнее ребро
             edges[0] = (0, cnt - 1) #соединяем первую и последнюю точки
 
 def add_point_otsek(x, y):
@@ -38,7 +89,7 @@ def add_point_otsek(x, y):
             edges_2.append((0, 1)) #исключительный случай
         edges_2.append((cnt_2 - 2, cnt_2 - 1))
         if cnt_2 > 2:
-            bresenham(points_2[edges_2[0][0]], points_2[edges_2[0][1]], 0) #удаляем последнее ребро
+            #bresenham(points_2[edges_2[0][0]], points_2[edges_2[0][1]], 0) #удаляем последнее ребро
             edges_2[0] = (0, cnt_2 - 1) #соединяем первую и последнюю точки
 
 def bresenham(p1, p2, color): #алгоритм брезенхема без лишних слов
@@ -70,9 +121,9 @@ def bresenham(p1, p2, color): #алгоритм брезенхема без ли
             err_y -= dist
             y += step_y
     
-def draw(): #рисуем все рёбра
+def draw(color=255): #рисуем все рёбра
     for edge in edges:
-        bresenham(points[edge[0]], points[edge[1]], 255)
+        bresenham(points[edge[0]], points[edge[1]], color)
 
 def draw_otsek(): #рисуем все рёбра
     for edge in edges_2:
@@ -104,6 +155,21 @@ def key_callback(window, key, scancode, action, mods):
             otsek = 0
         elif key == glfw.KEY_V:
             otsek = 1 - otsek
+        elif key == glfw.KEY_M:
+            subject_polygon = points.copy()
+            clipping_polygon = points_2.copy()
+            clipped_polygon = cut(subject_polygon, clipping_polygon)
+            #print("edges ", edges)
+            #print("points ", points)
+            draw(0)
+            points, edges = [], []
+            cnt = 0
+            for p in clipped_polygon:
+                add_point(int(p[0]), int(p[1]))
+            #print("clipped ", clipped_polygon)
+            #print("edges ", edges)
+            if len(edges) > 0:
+                draw()
 
 def mouse_button(window, button, action, mods):
     y, x = glfw.get_cursor_pos(window)
@@ -130,5 +196,6 @@ def main():
         display(window)
     glfw.destroy_window(window)
     glfw.terminate()
+
 
 main()
