@@ -6,7 +6,7 @@ from PIL import Image
 alpha, beta = 0.0, 0.0 #углы поворота
 vector_speed, speed = 0.009, 0.0
 fill = False
-is_move, is_light = 0, 0
+is_move, is_light, is_tek = 0, 0, 0
 
 def load_tex(): #генерация текстуры
     glEnable(GL_TEXTURE_2D)
@@ -31,7 +31,7 @@ def compute_norm(a, b, c): #вычисление нормали
     normal[2] /= l
     return normal
 
-def prizma():
+def prizma_tek():
     glBegin(GL_POLYGON)
     #верхняя
     glTexCoord2f(0, 0)
@@ -142,6 +142,86 @@ def prizma():
     glEnd()
     
 
+def prizma():
+    glBegin(GL_POLYGON)
+    #верхняя
+    glColor3f(0, 0, 139/255) 
+    glVertex3f(1/2, 1/2, 8**(1/4)/4)#A
+    glVertex3f(-1/2, 1/2, 8**(1/4)/4)#B
+    glVertex3f(-1/2, -1/2, 8**(1/4)/4)#D
+    glVertex3f(1/2, -1/2, 8**(1/4)/4)#C
+    normal = compute_norm((1/2, 1/2, 8**(1/4)/4), (-1/2, 1/2, 8**(1/4)/4), (-1/2, -1/2, 8**(1/4)/4))
+    glNormal3f(normal[0], normal[1], normal[2])
+    glEnd()
+    glBegin(GL_TRIANGLES)
+    #1
+    glColor3f(139/255, 0, 0)
+    glVertex3f(1/2, 1/2, 8**(1/4)/4)#A
+    glVertex3f(0, sqrt(2)/2, -8**(1/4)/4)#E
+    glVertex3f(-1/2, 1/2, 8**(1/4)/4)#B
+    normal = compute_norm((1/2, 1/2, 8**(1/4)/4), (0, sqrt(2)/2, -8**(1/4)/4), (-1/2, 1/2, 8**(1/4)/4))
+    glNormal3f(normal[0], normal[1], normal[2])
+    #2
+    glColor3f(255/255, 69/255, 0)
+    glVertex3f(0, sqrt(2)/2, -8**(1/4)/4)#E
+    glVertex3f(-1/2, 1/2, 8**(1/4)/4)#B
+    glVertex3f(-sqrt(2)/2, 0, -8**(1/4)/4)#H
+    normal = compute_norm((0, sqrt(2)/2, -8**(1/4)/4), (-1/2, 1/2, 8**(1/4)/4), (-sqrt(2)/2, 0, -8**(1/4)/4))
+    glNormal3f(normal[0], normal[1], normal[2])
+    #3
+    glColor3f(1.0, 1.0, 0)
+    glVertex3f(-1/2, 1/2, 8**(1/4)/4)#B
+    glVertex3f(-sqrt(2)/2, 0, -8**(1/4)/4)#H
+    glVertex3f(-1/2, -1/2, 8**(1/4)/4)#D
+    normal = compute_norm((-1/2, 1/2, 8**(1/4)/4), (-sqrt(2)/2, 0, -8**(1/4)/4), (-1/2, -1/2, 8**(1/4)/4))
+    glNormal3f(normal[0], normal[1], normal[2])
+    #4
+    glColor3f(138/255, 43/255, 226/255) 
+    glVertex3f(-sqrt(2)/2, 0, -8**(1/4)/4)#H
+    glVertex3f(-1/2, -1/2, 8**(1/4)/4)#D
+    glVertex3f(0, -sqrt(2)/2, -8**(1/4)/4)#F
+    normal = compute_norm((-sqrt(2)/2, 0, -8**(1/4)/4), (-1/2, -1/2, 8**(1/4)/4), (0, -sqrt(2)/2, -8**(1/4)/4))
+    glNormal3f(normal[0], normal[1], normal[2])
+    #5
+    glColor3f(255/255, 0, 255/255) 
+    glVertex3f(-1/2, -1/2, 8**(1/4)/4)#D
+    glVertex3f(0, -sqrt(2)/2, -8**(1/4)/4)#F
+    glVertex3f(1/2, -1/2, 8**(1/4)/4)#C
+    normal = compute_norm((-1/2, -1/2, 8**(1/4)/4), (0, -sqrt(2)/2, -8**(1/4)/4), (1/2, -1/2, 8**(1/4)/4))
+    glNormal3f(normal[0], normal[1], normal[2])
+    #6
+    glColor3f(0, 255/255, 0) 
+    glVertex3f(0, -sqrt(2)/2, -8**(1/4)/4)#F
+    glVertex3f(1/2, -1/2, 8**(1/4)/4)#C
+    glVertex3f(sqrt(2)/2, 0, -8**(1/4)/4)#G
+    normal = compute_norm((0, -sqrt(2)/2, -8**(1/4)/4), (1/2, -1/2, 8**(1/4)/4), (sqrt(2)/2, 0, -8**(1/4)/4))
+    glNormal3f(normal[0], normal[1], normal[2])
+    #7
+    glColor3f(0, 100/255, 0)
+    glVertex3f(1/2, -1/2, 8**(1/4)/4)#C
+    glVertex3f(sqrt(2)/2, 0, -8**(1/4)/4)#G
+    glVertex3f(1/2, 1/2, 8**(1/4)/4)#A
+    normal = compute_norm((1/2, -1/2, 8**(1/4)/4), (sqrt(2)/2, 0, -8**(1/4)/4), (1/2, 1/2, 8**(1/4)/4))
+    glNormal3f(normal[0], normal[1], normal[2])
+    #8
+    glColor3f(0, 255/255, 255/255) 
+    glVertex3f(sqrt(2)/2, 0, -8**(1/4)/4)#G
+    glVertex3f(1/2, 1/2, 8**(1/4)/4)#A
+    glVertex3f(0, sqrt(2)/2, -8**(1/4)/4)#E
+    normal = compute_norm((sqrt(2)/2, 0, -8**(1/4)/4), (1/2, 1/2, 8**(1/4)/4), (0, sqrt(2)/2, -8**(1/4)/4))
+    glNormal3f(normal[0], normal[1], normal[2])
+    glEnd()
+    #нижняя
+    glBegin(GL_POLYGON)
+    glColor3f(0, 0, 255/255) 
+    glVertex3f(sqrt(2)/2, 0, -8**(1/4)/4)#G
+    glVertex3f(0, sqrt(2)/2, -8**(1/4)/4)#E
+    glVertex3f(-sqrt(2)/2, 0, -8**(1/4)/4)#H
+    glVertex3f(0, -sqrt(2)/2, -8**(1/4)/4)#F
+    normal = compute_norm((sqrt(2)/2, 0, -8**(1/4)/4), (0, sqrt(2)/2, -8**(1/4)/4), (-sqrt(2)/2, 0, -8**(1/4)/4))
+    glNormal3f(normal[0], normal[1], normal[2])
+    glEnd()
+
 def light(): #освещение
     glShadeModel(GL_SMOOTH) #режим интерполяции цветов между вершинами
     glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE) #установка глобальной модели освещения
@@ -176,6 +256,7 @@ def move(): #движение
         vector_speed = -vector_speed
 
 def display(window):
+    global is_tek
     glEnable(GL_DEPTH_TEST)
     glDepthFunc(GL_LESS)
     glClearColor(0.0, 0.0, 0.0, 0.0)
@@ -187,12 +268,15 @@ def display(window):
     glTranslatef(0, speed, 0)
     glRotatef(alpha, 1, 0, 0)
     glRotatef(beta, 0, 1, 0)
-    prizma()
+    if is_tek:
+        prizma_tek()
+    else:
+        prizma()
     glfw.swap_buffers(window)
     glfw.poll_events()
 
 def key_callback(window, key, scancode, action, mods):
-    global alpha, beta, is_move, is_light
+    global alpha, beta, is_move, is_light, is_tek
     if action == glfw.PRESS or action == glfw.REPEAT:
         if key == glfw.KEY_RIGHT:
             beta += 1
@@ -213,12 +297,14 @@ def key_callback(window, key, scancode, action, mods):
             if is_light:
                 glEnable(GL_LIGHTING)
                 glEnable(GL_LIGHT0)
-                light()
+                # light()
             else:
                 glDisable(GL_LIGHTING)
             is_light = 1 - is_light
         elif key == glfw.KEY_M:
             is_move = 1 - is_move
+        elif key == glfw.KEY_T:
+            is_tek = 1 - is_tek
 
 def main():
     if not glfw.init():
