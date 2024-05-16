@@ -3,10 +3,12 @@ from OpenGL.GL import *
 from math import cos, sin, sqrt, asin, pi
 from PIL import Image
 
+
 alpha, beta = 0.0, 0.0 #углы поворота
 vector_speed, speed = 0.009, 0.0
 fill = False
-is_move, is_light, is_tek = 0, 0, 0
+is_move, is_light, is_tek = 0, 0, 1
+
 
 def load_tex(): #генерация текстуры
     glEnable(GL_TEXTURE_2D)
@@ -17,6 +19,7 @@ def load_tex(): #генерация текстуры
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.width, image.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, img_data)
+
 
 def compute_norm(a, b, c): #вычисление нормали
     x0, y0, z0 = a
@@ -30,6 +33,7 @@ def compute_norm(a, b, c): #вычисление нормали
     normal[1] /= l
     normal[2] /= l
     return normal
+
 
 def prizma_tek():
     glBegin(GL_POLYGON)
@@ -222,12 +226,13 @@ def prizma():
     glNormal3f(normal[0], normal[1], normal[2])
     glEnd()
 
+
 def light(): #освещение
     glShadeModel(GL_SMOOTH) #режим интерполяции цветов между вершинами
     glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE) #установка глобальной модели освещения
     glEnable(GL_NORMALIZE) #нормировка нормалей
 
-    glLightfv(GL_LIGHT0, GL_POSITION, [0, 0, 0, 1]) #позиция источника света
+    glLightfv(GL_LIGHT0, GL_POSITION, [0, 0, 1, 1]) #позиция источника света
     glLightfv(GL_LIGHT0, GL_AMBIENT, [0, 0, 0, 1])
     glLightfv(GL_LIGHT0, GL_DIFFUSE, [1, 1, 1, 1])
     glLightfv(GL_LIGHT0, GL_SPECULAR, [1, 1, 1, 1])
@@ -246,7 +251,7 @@ def light(): #освещение
     glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse) #цвет рассеянного отражения материала
     glMaterialfv(GL_FRONT, GL_SPECULAR, specular) #цвет зеркального отражения материала
     glMaterialfv(GL_FRONT, GL_SHININESS, shininess) #степень в формуле зеркального отражения
-    glMaterialfv(GL_FRONT, GL_EMISSION, emission)
+    glMaterialfv(GL_FRONT, GL_EMISSION, emission) #цвет, испускаемый объектом
 
 
 def move(): #движение
@@ -255,13 +260,15 @@ def move(): #движение
     if speed < -1 or speed > 1:
         vector_speed = -vector_speed
 
+
 def display(window):
     global is_tek
     glEnable(GL_DEPTH_TEST)
     glDepthFunc(GL_LESS)
     glClearColor(0.0, 0.0, 0.0, 0.0)
-    glLoadIdentity()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    glLoadIdentity()
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
     if is_move == 1:
         move()
     glTranslatef(speed, 0, 0) #движение по оси 
@@ -274,6 +281,7 @@ def display(window):
         prizma()
     glfw.swap_buffers(window)
     glfw.poll_events()
+
 
 def key_callback(window, key, scancode, action, mods):
     global alpha, beta, is_move, is_light, is_tek
@@ -305,6 +313,7 @@ def key_callback(window, key, scancode, action, mods):
             is_move = 1 - is_move
         elif key == glfw.KEY_T:
             is_tek = 1 - is_tek
+
 
 def main():
     if not glfw.init():
