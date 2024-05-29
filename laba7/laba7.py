@@ -3,6 +3,7 @@ from OpenGL.GL import *
 from math import cos, sin, sqrt, asin, pi
 from PIL import Image
 import random
+import time
 
 
 alpha, beta = 0.0, 0.0 #углы поворота
@@ -10,6 +11,8 @@ vector_speed, speed = 0.009, 0.0
 fill = False
 is_move, is_light, is_tek = 0, 0, 1
 R, G, B = 155, 456, 89
+last_time = 0.0
+cnt_frame = 0
 
 sides = [
     (1/2, 1/2, 8**(1/4)/4),#A
@@ -40,13 +43,13 @@ tek_list = [
     (1, 1)
 ]
 
-dispay_list = []
-byff_mass_vershin = []
+display_list = []
+vpo = []
 
 def create_disp_list():
-    global R, G, B
-    # dispay_list = glGenLists(1)
-    # glNewList(dispay_list, GL_COMPILE)
+    global R, G, B, dispay_list
+    # display_list = glGenLists(1)
+    # glNewList(display_list, GL_COMPILE)
     glBegin(GL_POLYGON)
     #верхняя
     if (1 - is_tek):
@@ -91,6 +94,7 @@ def create_disp_list():
     normal = compute_norm(root2[0], root2[1], root2[2])
     glNormal3f(normal[0], normal[1], normal[2])
     glEnd()
+    # glEndList()
 
 
 
@@ -156,7 +160,7 @@ def move(): #движение
 
 
 def display(window):
-    global is_tek
+    global is_tek, display_list, last_time, cnt_frame
     glEnable(GL_DEPTH_TEST)
     glDepthFunc(GL_LESS)
     glClearColor(0.0, 0.0, 0.0, 0.0)
@@ -170,6 +174,16 @@ def display(window):
     glRotatef(alpha, 1, 0, 0)
     glRotatef(beta, 0, 1, 0)
     create_disp_list()
+
+    # Вывод FPS
+    current_time = time.time()
+    delta_time = current_time - last_time
+    cnt_frame += 1
+    if delta_time >= 1.0:
+        fps = cnt_frame / delta_time
+        print("FPS:", fps)
+        cnt_frame = 0
+        last_time = current_time
     glfw.swap_buffers(window)
     glfw.poll_events()
 
@@ -196,7 +210,7 @@ def key_callback(window, key, scancode, action, mods):
             if is_light:
                 glEnable(GL_LIGHTING)
                 glEnable(GL_LIGHT0)
-                # light()
+                #light()
             else:
                 glDisable(GL_LIGHTING)
             is_light = 1 - is_light
@@ -225,5 +239,6 @@ def main():
         display(window)
     glfw.destroy_window(window)
     glfw.terminate()
+
 
 main()
